@@ -267,14 +267,23 @@ namespace VSIXProject2019
 
         private void OnGitTorCommandExec(object sender, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var menuCommand = sender as MenuCommand;
             if (null != menuCommand)
             {
                 int idx = menuCommand.CommandID.ID - PkgCmdIDList.icmdGitTorCommand1;
                 var cmd = GitToolCommands.GitTorCommands[idx];
                 var targetPath = CurrentGitWorkingDirectory;
+                var targetFile = dte.ActiveDocument.FullName;
                 var tortoiseGitPath = GitSccOptions.Current.TortoiseGitPath;
-                RunDetatched(tortoiseGitPath, cmd.Command + " /path:\"" + targetPath + "\"");
+                if (cmd.Scope == CommandScope.File)
+                {
+                    RunDetatched(tortoiseGitPath, cmd.Command + " /path:\"" + targetFile + "\"");
+                }
+                else
+                {
+                    RunDetatched(tortoiseGitPath, cmd.Command + " /path:\"" + targetPath + "\"");
+                }
             }
         }
 
